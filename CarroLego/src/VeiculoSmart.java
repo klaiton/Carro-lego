@@ -4,7 +4,9 @@ import java.lang.Math;
 public class VeiculoSmart extends Veiculo{
 
 public int distanciaSensor = 0;
+
 public float ateLinha = 0;
+
 /**
  * construtor para definir quais sensores estarao ativos
  * 
@@ -16,6 +18,27 @@ public float ateLinha = 0;
 	
 public VeiculoSmart(boolean toque, boolean colorDir, boolean colorEsq, boolean infravermelho) {
 	super(toque,colorDir,colorEsq,infravermelho);	
+}
+
+/**
+ * metodos getters e setters das variaveis distanciaSensor e ateLinha
+ * @return
+ */
+
+public int getDistanciaSensor() {
+	return distanciaSensor;
+}
+
+public void setDistanciaSensor(int distanciaSensor) {
+	this.distanciaSensor = distanciaSensor;
+}
+
+public float getAteLinha() {
+	return ateLinha;
+}
+
+public void setAteLinha(float ateLinha) {
+	this.ateLinha = ateLinha;
 }
 
 /**
@@ -35,7 +58,10 @@ public enum Lado{
 	  	}
 }
 
-////sensor esquerdo não preto
+/**
+ * curva para direita, reescrito do metodo curvaDireita 
+ * da classe herdada (Veiculo)
+ */
 public void curvaDireita() {
 	this.desligaSincronizacaoEsteiras();
 	this.dir.ligaTras();
@@ -43,7 +69,10 @@ public void curvaDireita() {
 	
 }
 
-///sensor direito não preto
+/**
+ * curva para esquerda, reescrito do metodo curvaDireita 
+ * da classe herdada (Veiculo)
+ */
 public void curvaEsquerda() {
 	this.desligaSincronizacaoEsteiras();
 	this.dir.ligaFrente();
@@ -65,7 +94,7 @@ public void  segueLinha(String ladoDireito, String ladoEsquerdo){
 	if(!this.isPreto(ladoDireito) && !this.isPreto(ladoEsquerdo)) {
 		this.setEsteirasForward();
 		this.curvaDireita();
-		while(!this.isPreto(ladoDireito) && !this.isPreto(ladoEsquerdo) && super.getDistancia()> this.distanciaSensor);
+		while(!this.isPreto(ladoDireito) && !this.isPreto(ladoEsquerdo) && super.getDistancia()> this.getDistanciaSensor());
 		this.stop();
 	}
 
@@ -73,7 +102,7 @@ public void  segueLinha(String ladoDireito, String ladoEsquerdo){
 ///esquerdo estiver no preto
 	if(this.isPreto(ladoDireito) && !this.isPreto(ladoEsquerdo)) {
 		this.curvaDireita();
-		while(!this.isPreto(ladoEsquerdo)&& super.getDistancia()> this.distanciaSensor);
+		while(!this.isPreto(ladoEsquerdo)&& super.getDistancia()>  this.getDistanciaSensor());
 		this.stop();
 	}
 
@@ -81,7 +110,7 @@ public void  segueLinha(String ladoDireito, String ladoEsquerdo){
 ///direito estiver no preto
 	if(this.isPreto(ladoEsquerdo) && !this.isPreto(ladoDireito)) {
 		this.curvaEsquerda();
-		while(!this.isPreto(ladoDireito) && super.getDistancia()> this.distanciaSensor);
+		while(!this.isPreto(ladoDireito) && super.getDistancia()>  this.getDistanciaSensor());
 		this.stop();
 		
 	}
@@ -89,8 +118,7 @@ public void  segueLinha(String ladoDireito, String ladoEsquerdo){
 
 	if(this.isPreto(ladoDireito) &&  this.isPreto(ladoDireito)) {
 		this.setEsteirasForward();
-		this.ateLinha = this.dir.getTacometro();
-		while(this.isPreto(ladoDireito) && this.isPreto(ladoEsquerdo) && super.getDistancia()> this.distanciaSensor);
+		while(this.isPreto(ladoDireito) && this.isPreto(ladoEsquerdo) && super.getDistancia()>  this.getDistanciaSensor());
 		this.stop();
 	}		
 			
@@ -125,8 +153,8 @@ public void largaBola() {
  */
 public void linhainicio() {
 	this.setEsteirasForward();
-	this.distanciaSensor = super.getDistancia() -2 ;
-	float ateAfaixa = this.dir.getTacometro();
+	this.setDistanciaSensor(super.getDistancia() -2);  /// variavel distanciaSensor recebe a distancia do sensor até o chao
+	this.setAteLinha(this.dir.getTacometro()); 
 	while(!this.isPreto("direito") || !this.isPreto("esquerdo"));
 	this.stop();
 	
@@ -156,7 +184,7 @@ public void pegaBolaNaLinha() {
 	this.linhainicio();
 	
 /// distancia tem que ser menor que distancia do sensor a bolinha 	
-	while(super.getDistancia() > this.distanciaSensor ) {
+	while(super.getDistancia() > this.getDistanciaSensor() ) {
 		this.segueLinha("direito","esquerdo");
 	}
 	this.stop();
@@ -168,11 +196,15 @@ public void pegaBolaNaLinha() {
 	
 }
 
-///o nome do metodo ja fala volta ao ponto de partida
+/**
+ * o nome do metodo ja fala volta ao ponto de partida
+ */
+
 public void voltaAoPontoDeOrigem() {
-	super.curvaEsquerda(2);
+	super.curvaEsquerda(2); 
 	this.stop();
-	this.setEsteirasForward(); // anda a distancia até a faixa
+	super.setVelocidadeEsteirasGrau(250);
+	this.setEsteirasForward((int) (this.getAteLinha())/360); // anda a distancia até a faixa
 }
 
 
